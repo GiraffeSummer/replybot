@@ -18,7 +18,7 @@ export default {
         await interaction.editReply({
             embeds: [{
                 title: 'reply',
-                description: `Execute this command:\n\`${`/ref channel:${channel.id} message:${message.id}`}\``,
+                description: `Execute this command:\n\`${`/ref channel:${channel.id} ref:${message.id}`}\``,
                 url: messageUrl
             }],
         });
