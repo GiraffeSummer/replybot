@@ -33,36 +33,44 @@ export default {
         const msg = interaction.options.get('ref').value as string
         const newContext = interaction.options.get('message')?.value as string | undefined || undefined
         const guildId = interaction.guildId;
-        const message = await channel.messages.fetch(`${msg}`)
+        try {
+            const message = await channel.messages.fetch(`${msg}`)
 
-        const messageUrl = `https://discord.com/channels/${guildId}/${channel.id}/${message.id}`
+            const messageUrl = `https://discord.com/channels/${guildId}/${channel.id}/${message.id}`
 
 
-        const followUp: InteractionReplyOptions =
-        {
-            embeds: [
-                {
-                    title: `Replied to:`,
-                    description: message.content,
+            const followUp: InteractionReplyOptions =
+            {
+                embeds: [
+                    {
+                        title: `Replied to:`,
+                        description: message.content,
+                        author: {
+                            name: message.author.username,
+                            url: messageUrl,
+                            icon_url: message.author.displayAvatarURL({ dynamic: true })
+                        },
+                    }
+                ]
+            }
+
+            if (newContext != undefined) {
+                followUp.embeds.push({
+                    description: newContext,
                     author: {
-                        name: message.author.username,
-                        url: messageUrl,
-                        icon_url: message.author.displayAvatarURL({ dynamic: true })
-                    },
-                }
-            ]
-        }
+                        icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
+                        name: `${interaction.user.username}:`
+                    }
+                });
+            }
 
-        if (newContext != undefined) {
-            followUp.embeds.push({
-                description: newContext,
-                author: {
-                    icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
-                    name: `${interaction.user.username}:`
-                }
+            await interaction.followUp(followUp);
+        } catch (error) {
+            await interaction.followUp({
+                ephemeral: true,
+                content: 'message is probably not in cache, rip.',
+                embeds: [{ description: error.message }]
             });
         }
-
-        await interaction.followUp(followUp);
     }
 } as Command;
